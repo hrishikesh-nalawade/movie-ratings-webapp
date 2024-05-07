@@ -1,0 +1,69 @@
+package com.microservicestutorial.controller;
+
+import com.microservicestutorial.models.CatalogItem;;
+import com.microservicestutorial.models.Movie;
+import com.microservicestutorial.models.Rating;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
+//import org.springframework.web.reactive.function.client.WebClient;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@RestController
+@RequestMapping("/catalog")
+public class MovieCatalogController {
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+//    @Autowired
+//    private WebClient webClientBuilder;
+
+    @GetMapping("/{userId}")
+    public List<CatalogItem> getCatalog(@PathVariable("userId") String userId) {
+
+        //As the aim is to understand how Microservices work together, we'll hardcode the response as of now.
+
+        //Calling Microservices with help of RestTemplate
+        //Note:- we have used  restTemplate.getForEntity() as we want list/array in response, restTemplate.getForObject() could be used in case we are expecting single object.
+        ResponseEntity<Movie[]> movie = restTemplate.getForEntity("http://localhost:8081/movies/trs", Movie[].class);
+        ResponseEntity<Rating[]> rating = restTemplate.getForEntity("http://localhost:8083/ratingsData/trs", Rating[].class);
+
+        Rating[] ratings = rating.getBody();
+        Movie[] movies = movie.getBody();
+
+        CatalogItem catalogItem1 = CatalogItem.builder()
+                .name(movies[0].getName())
+                .description(movies[0].getDescription())
+                .rating(ratings[0].getRating())
+                .build();
+
+        CatalogItem catalogItem2 = CatalogItem.builder()
+                .name(movies[1].getName())
+                .description(movies[1].getDescription())
+                .rating(ratings[1].getRating())
+                .build();
+
+        List<CatalogItem> catalogItems = new ArrayList<>();
+        catalogItems.add(catalogItem1);
+        catalogItems.add(catalogItem2);
+
+        //Calling Microservices with help of WebClient
+        //Note:- WebClient is part of WebFlux, which uses a reactive/functional paradigm to write the code asynchronously.
+        //As we don't want to build a WebClient object every time we call this API, we will create a bean for this so that
+        //Spring can manage it's object, similarly what we did for RestTemplate.
+        //WebClient.Builder builder = WebClient.builder();
+
+//        Mono<Movie[]> movies1 = webClientBuilder.get()
+//                .uri("http://localhost:8081/movies/trs")
+//                .retrieve()
+//                .bodyToMono(Movie[].class)
+//                .block();
+
+        return catalogItems;
+
+    }
+}
