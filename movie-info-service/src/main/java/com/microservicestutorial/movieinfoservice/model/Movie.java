@@ -1,5 +1,6 @@
 package com.microservicestutorial.movieinfoservice.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 @Getter
@@ -8,8 +9,10 @@ import lombok.*;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class Movie {
-    private String movieId;
-    private String name;
-    private String description;
+    private String id;
+    private String title;
+    private String overview;
+    @JsonProperty("release_date")
+    private String releaseDate;
 
 }
