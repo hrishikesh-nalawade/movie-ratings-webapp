@@ -32,29 +32,22 @@ public class MovieCatalogController {
 
         //ResponseEntity<Movie[]> movie = restTemplate.getForEntity("http://localhost:8081/movies/trs", Movie[].class);
         //After adding discovery server/eureka server now we will replace "localhost:8081" with application/service name. As done below
-        ResponseEntity<Movie[]> movie = restTemplate.getForEntity("http://movie-info-service/movies/trs", Movie[].class);
+        ResponseEntity<Movie> movie = restTemplate.getForEntity("http://movie-info-service/movies/100", Movie.class);
 
         //similarly localhost:8082 has been replaced with "ratings-data-service"
         ResponseEntity<Rating[]> rating = restTemplate.getForEntity("http://ratings-data-service/ratingsData/trs", Rating[].class);
 
         Rating[] ratings = rating.getBody();
-        Movie[] movies = movie.getBody();
+        Movie movieObject = movie.getBody();
 
         CatalogItem catalogItem1 = CatalogItem.builder()
-                .name(movies[0].getName())
-                .description(movies[0].getDescription())
+                .name(movieObject.getTitle())
+                .description(movieObject.getOverview())
                 .rating(ratings[0].getRating())
-                .build();
-
-        CatalogItem catalogItem2 = CatalogItem.builder()
-                .name(movies[1].getName())
-                .description(movies[1].getDescription())
-                .rating(ratings[1].getRating())
                 .build();
 
         List<CatalogItem> catalogItems = new ArrayList<>();
         catalogItems.add(catalogItem1);
-        catalogItems.add(catalogItem2);
 
         //Calling Microservices with help of WebClient
         //Note:- WebClient is part of WebFlux, which uses a reactive/functional paradigm to write the code asynchronously.
