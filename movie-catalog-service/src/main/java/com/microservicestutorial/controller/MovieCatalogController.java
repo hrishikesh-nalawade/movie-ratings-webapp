@@ -29,8 +29,13 @@ public class MovieCatalogController {
 
         //Calling Microservices with help of RestTemplate
         //Note:- we have used  restTemplate.getForEntity() as we want list/array in response, restTemplate.getForObject() could be used in case we are expecting single object.
-        ResponseEntity<Movie[]> movie = restTemplate.getForEntity("http://localhost:8081/movies/trs", Movie[].class);
-        ResponseEntity<Rating[]> rating = restTemplate.getForEntity("http://localhost:8083/ratingsData/trs", Rating[].class);
+
+        //ResponseEntity<Movie[]> movie = restTemplate.getForEntity("http://localhost:8081/movies/trs", Movie[].class);
+        //After adding discovery server/eureka server now we will replace "localhost:8081" with application/service name. As done below
+        ResponseEntity<Movie[]> movie = restTemplate.getForEntity("http://movie-info-service/movies/trs", Movie[].class);
+
+        //similarly localhost:8082 has been replaced with "ratings-data-service"
+        ResponseEntity<Rating[]> rating = restTemplate.getForEntity("http://ratings-data-service/ratingsData/trs", Rating[].class);
 
         Rating[] ratings = rating.getBody();
         Movie[] movies = movie.getBody();
