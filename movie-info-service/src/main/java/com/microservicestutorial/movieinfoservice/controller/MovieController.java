@@ -1,10 +1,14 @@
 package com.microservicestutorial.movieinfoservice.controller;
 
 import com.microservicestutorial.movieinfoservice.model.Movie;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,29 +16,20 @@ import java.util.List;
 @RequestMapping("/movies")
 public class MovieController {
 
+    @Value("${api.key}")
+    private String apiKey;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
     @GetMapping("/{movieId}")
-    public List<Movie> getMovieInfo(
+    public Movie getMovieInfo(
             @PathVariable("movieId") String movieId) {
 
-        //As the aim is to understand how Microservices work together, we'll hardcode the response as of now.
-        Movie movie1 = Movie.builder()
-                .name("Transformers")
-                .movieId("Trans01")
-                .description("Movie description")
-                .build();
+        Movie movie = restTemplate.getForObject(
+                "https://api.themoviedb.org/3/movie/" + movieId + "?api_key=" +  apiKey, Movie.class);
 
-        Movie movie2 = Movie.builder()
-                .name("Transformers: Age of Megatron")
-                .movieId("Trans01")
-                .description("Movie description")
-                .build();
-
-        List<Movie> movies = new ArrayList<>();
-
-        movies.add(movie1);
-        movies.add(movie2);
-
-        return movies;
+        return movie;
     }
 
 }
